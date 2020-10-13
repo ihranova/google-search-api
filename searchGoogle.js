@@ -1,21 +1,33 @@
 const puppeteer = require('puppeteer');
 const {performance} = require('perf_hooks');
 
-const searchGoogle = async (searchQuery) => {
+const searchGoogle = async (searchQuery, url) => {
     const browser = await puppeteer.launch();
 
     const page = await browser.newPage();
-    await page.goto('https://google.com');
-    await page.type('input[name="q"]', searchQuery);
+    await page.setViewport({
+        width: 1920,
+        height: 950,
+        deviceScaleFactor: 1,
+    });
+    if(url!= ''){
+        await page.goto(url);
+    }else{
+        await page.goto('https://google.com');
+        await page.type('input[name="q"]', searchQuery);
+    
+        await page.$eval('input[name=btnK]', button => button.click());
+    }
 
-    await page.$eval('input[name=btnK]', button => button.click());
+   
     await page.waitForSelector('div[id=search]');
     
 
     //Find all div elements with class 'bkWMgd'
-    const searchResults = await page.$$eval('div[id=search]', results => {
+    const searchResults = await page.$$eval('div[id=rcnt]', results => {
         //Array to hold all our results
         let data = [];
+        let pages = [];
 
         //Iterate over all the results
         results.forEach(parent => {
@@ -29,12 +41,12 @@ const searchGoogle = async (searchQuery) => {
             }
 
             //Check if parent contains 1 div with class 'g' or contains many but nested in div with class 'srg'
-            let gCount = parent.querySelectorAll('div[class=g]');
+            let gCount = parent.querySelectorAll('div[id=search] div[class=g]');
 
             //If there is no div with class 'g' that means there must be a group of 'g's in class 'srg'
             if (gCount.length === 0) {
                 //Targets all the divs with class 'g' stored in div with class 'srg'
-                gCount = parent.querySelectorAll('div[id=rso] > div[class=g]');
+                gCount = parent.querySelectorAll('div[id=search] div[id=rso] > div[class=g]');
             }
 
             //Iterate over all the divs with class 'g'
@@ -51,13 +63,33 @@ const searchGoogle = async (searchQuery) => {
                 //Add to the return Array
                 data.push({title, desciption, url});
             });
+
+            //tacking pagignations
+            const pagination = parent.querySelectorAll('div[id=foot] table td a[class=fl]');
+            pagination.forEach(result => {
+                
+                //Target the title
+                const number = result.innerText;
+
+                //Target the url
+                const url = result.href;
+
+                //Target the description
+                //const desciption = result.querySelector('div[class=rc] span[class=aCOpRe]').innerText;
+
+                //Add to the return Array
+                pages.push({number, url});
+            });
+            
+            
+
         });
+       
 
         //Return the search results
-        return data;
+        return {data, pages};
     });
-
-
+   
     await page.screenshot({path: 'example.png'});
 
     await browser.close();

@@ -1,7 +1,8 @@
 const express = require('express');
 
 const app = express();
-const ip = process.env.IP || '0.0.0.0';
+
+const ip = process.env.IP || 'ç';
 const port = process.env.PORT || 8080;
 
 const searchGoogle = require('./searchGoogle');

@@ -3,8 +3,21 @@ const {performance} = require('perf_hooks');
 
 const searchGoogle = async (searchQuery, url) => {
     const browser = await puppeteer.launch();
+    //const browser = await puppeteer.launch({headless: false}); // default is true
 
     const page = await browser.newPage();
+
+     //turns request interceptor on
+     await page.setRequestInterception(true);
+
+     //if the page makes a  request to a resource type of image or stylesheet then abort that            request
+     page.on('request', request => {
+         if (request.resourceType() === 'image' || request.resourceType() === 'stylesheet')
+             request.abort();
+         else
+             request.continue();
+     });
+
      // Get the "viewport" of the page, as reported by the page.
     const dimensions = await page.evaluate(() => {
     return {
@@ -97,6 +110,7 @@ const searchGoogle = async (searchQuery, url) => {
     await page.screenshot({path: 'example.png'});
 
     await browser.close();
+    //console.log(searchResults);
     return searchResults;
 };
 

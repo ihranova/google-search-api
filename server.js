@@ -1,12 +1,18 @@
 const express = require('express');
 
 const app = express();
-const port = 3000;
+const ip = process.env.IP || '0.0.0.0';
+const port = process.env.PORT || 8080;
+
 const searchGoogle = require('./searchGoogle');
 
 app.get('/', (req, res)=> res.send('Hello world'));
 
 app.get('/search', (req,res) =>{
+   var host = req.headers.host;
+   var origin = req.headers.origin;
+   
+   console.log(origin,host);
    const searchQuery = req.query.searchquery;
    const number = req.query.page;
    let data = [];
@@ -18,6 +24,7 @@ app.get('/search', (req,res) =>{
 
            res.status(200);
            res.json(results);
+           
         }
         else{
             data = results;
@@ -43,4 +50,4 @@ app.get('/search', (req,res) =>{
    }
 });
 
-app.listen(port, ()=> console.log(`Example app listening on port ${port}!`));
+app.listen(port, ip);

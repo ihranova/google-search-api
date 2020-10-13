@@ -5,11 +5,15 @@ const searchGoogle = async (searchQuery, url) => {
     const browser = await puppeteer.launch();
 
     const page = await browser.newPage();
-    await page.setViewport({
-        width: 1920,
-        height: 950,
-        deviceScaleFactor: 1,
+     // Get the "viewport" of the page, as reported by the page.
+    const dimensions = await page.evaluate(() => {
+    return {
+        width:1920,
+        height: 1900,
+        deviceScaleFactor: window.devicePixelRatio
+        };
     });
+    await page.setViewport( dimensions);
     if(url!= ''){
         await page.goto(url);
     }else{

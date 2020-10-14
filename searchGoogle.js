@@ -95,10 +95,10 @@ const searchGoogle = async (searchQuery, url) => {
     if(url!= ''){
         await page.goto(url);
     }else{
-        await page.goto('https://google.com');
-        await page.type('input[name="q"]', searchQuery);
+        await page.goto('https://google.com/search?q=' + searchQuery);
+        //await page.type('input[name="q"]', searchQuery);
     
-        await page.$eval('input[name=btnK]', button => button.click());
+        //await page.$eval('input[name=btnK]', button => button.click());
     }
 
    

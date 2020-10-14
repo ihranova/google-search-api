@@ -2,8 +2,8 @@ const puppeteer = require('puppeteer');
 const {performance} = require('perf_hooks');
 
 const searchGoogle = async (searchQuery, url) => {
-    const browser = await puppeteer.launch();
-    //const browser = await puppeteer.launch({headless: false}); // default is true
+    //const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({headless: false}); // default is true
 
     const page = await browser.newPage();
 
